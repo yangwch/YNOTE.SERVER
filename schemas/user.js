@@ -44,6 +44,12 @@ let userSchema = new Schema({
   createdTime: {
     type: Date,
     default: Date.now
+  },
+  // 是否可用
+  enabled: {
+    type: Boolean,
+    default: true,
+    select: true
   }
 })
 

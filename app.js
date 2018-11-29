@@ -4,9 +4,11 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var lessMiddleware = require('less-middleware');
 var logger = require('morgan');
+var cookieSession = require('cookie-session')
 
 var indexRouter = require('./routes/index');
 var userRouter = require('./routes/user');
+var noteRouter = require('./routes/note')
 
 var app = express();
 
@@ -21,11 +23,17 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(cookieSession({
+  name: 'ySession',
+  keys: ['ynote'],
+  maxAge: 1000 * 60 * 60 * 24 * 30
+}))
 app.use(lessMiddleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/', indexRouter);
 app.use('/api/user', userRouter);
+app.use('/api/note', noteRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,11 +1,31 @@
 var express = require('express');
 var router = express.Router();
 let User = require('./../models/user')
+let Note = require('./../models/note')
+let {initNotes} = require('./../config')
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+/* 检查用户名是否已存在 */
+router.post('/checkUserExists/:username', function(req, res, next) {
+  let {username} = req.params
+  User.find({username}, (err, docs) => {
+    if (docs && docs.length) {
+      res.send({
+        err: '用户名已存在'
+      })
+    } else {
+      res.send({
+        res: '用户名可用'
+      })
+    }
+  })
 });
+
+// 保存初始列表
+const saveInitNotes = (username) => {
+  let docs = [].concat(initNotes)
+  docs = docs.map(item => { return Object.assign(item, {username}) })
+  return Note.create(docs)
+}
 
 // 注册
 router.post('/reg', (req, res) => {
@@ -28,11 +48,31 @@ router.post('/reg', (req, res) => {
       if (err) {
         res.send({err})
       } else {
-        res.send(result)
+        saveInitNotes(username).then(notes => {
+          res.send(result)
+        })
       }
     })
   }
-  
+})
+
+// 登录
+router.post('/login', (req, res) => {
+  let {username, password} = req.body || {}
+  User.find({username, password, }, (err, docs) => {
+    if (docs && docs.length === 1) {
+      let {uername, sex, name} = docs[0]
+      // 设置 session
+      req.session.user = {username, sex, name}
+      res.send({
+        res: '登录成功！'
+      })
+    } else {
+      res.send({
+        err: '用户名或密码错误'
+      })
+    }
+  })
 })
 
 module.exports = router;
