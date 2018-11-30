@@ -2,22 +2,26 @@
 var express = require('express');
 var router = express.Router();
 let Note = require('./../models/note')
+let {initNotes} = require('./../config')
+
 // 检查缓存
-let checkSession = (req, res) => {
+let checkSession = (req, res, send = true) => {
   if (req.session && req.session.user) {
     return req.session.user
   } else {
-    res.send({err: '未登录'})
+    send && res.send({err: '未登录'})
   }
 }
 // 获取列表
 router.post('/getNotes', (req, res) => {
-  let user = checkSession(req, res)
+  let user = checkSession(req, res, false)
   if (user) {
     let {username} = user
     Note.find({username, deleted: false}, (err, docs) => {
-      res.send({res: docs})
+      res.send({res: docs, loginState: 'on'})
     })
+  } else {
+    res.send({res: initNotes, loginState: 'off'})
   }
 })
 
