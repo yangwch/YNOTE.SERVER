@@ -59,11 +59,11 @@ router.post('/reg', (req, res) => {
 // 登录
 router.post('/login', (req, res) => {
   let {username, password} = req.body || {}
-  User.find({username, password, }, (err, docs) => {
+  User.find({username, password}, (err, docs) => {
     if (docs && docs.length === 1) {
-      let {uername, sex, name} = docs[0]
+      let {uername, sex, name, email} = docs[0]
       // 设置 session
-      req.session.user = {username, sex, name}
+      req.session.user = {username, sex, name, email}
       res.send({
         res: '登录成功！'
       })
@@ -73,6 +73,31 @@ router.post('/login', (req, res) => {
       })
     }
   })
+})
+
+// 检查缓存
+let checkSession = (req, res, msg = '未登录') => {
+  if (req.session && req.session.user) {
+    return req.session.user
+  } else {
+    res.send({err: msg})
+  }
+}
+
+// 获取用户登录信息
+router.get('/getLoginInfo', (req, res) => {
+  let user = checkSession(req, res)
+  if (user) {
+    res.send({res: user})
+  }
+})
+// 登出
+router.get('/logout', (req, res) => {
+  let user = checkSession(req, res, '已登出')
+  if (user) {
+    req.session = null
+    res.send({res: '已登出'})
+  }
 })
 
 module.exports = router;

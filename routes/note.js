@@ -3,7 +3,7 @@ var express = require('express');
 var router = express.Router();
 let Note = require('./../models/note')
 // 检查缓存
-let checkSession = (req) => {
+let checkSession = (req, res) => {
   if (req.session && req.session.user) {
     return req.session.user
   } else {
@@ -12,7 +12,7 @@ let checkSession = (req) => {
 }
 // 获取列表
 router.post('/getNotes', (req, res) => {
-  let user = checkSession(req)
+  let user = checkSession(req, res)
   if (user) {
     let {username} = user
     Note.find({username, deleted: false}, (err, docs) => {
@@ -23,7 +23,7 @@ router.post('/getNotes', (req, res) => {
 
 // 添加一个
 router.post('/addNote', (req, res) => {
-  let user = checkSession(req)
+  let user = checkSession(req, res)
   if (user) {
     let {username} = user
     let note = req.body
@@ -41,7 +41,7 @@ router.post('/addNote', (req, res) => {
 
 // 更新一条
 router.post('/updNote/:id', (req, res) => {
-  let user = checkSession(req)
+  let user = checkSession(req, res)
   let {id} = req.params
   if (user) {
     let {username} = user
@@ -59,7 +59,7 @@ router.post('/updNote/:id', (req, res) => {
 
 // 删除
 router.delete('/delNote/:id', (req, res) => {
-  let user = checkSession(req)
+  let user = checkSession(req, res)
   let {id} = req.params
   if (user && id) {
     let {username} = user
