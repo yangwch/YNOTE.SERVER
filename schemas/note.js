@@ -18,6 +18,8 @@ let noteSchema = new Schema({
   h: Number,
   z: Number,
   style: Map,
+  // 主题
+  theme: String,
   // 是否隐藏，默认false
   hide: {
     type: Boolean,
