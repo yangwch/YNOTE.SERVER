@@ -99,5 +99,21 @@ router.get('/logout', (req, res) => {
     res.send({res: '已登出'})
   }
 })
+// 修改密码
+router.post('/changePwd', (req, res) => {
+  let user = checkSession(req, res, '已登出')
+  if (user) {
+    let {username} = user
+    let {password, newpassword} = req.body
+    User.findOneAndUpdate({username, password}, {password: newpassword}, (err, doc) => {
+      // console.log('changePwd', doc)
+      if (err || !doc) {
+        res.send({err: '修改失败，密码错误'})
+      } else {
+        res.send({res: '修改成功'})
+      }
+    })
+  }
+})
 
 module.exports = router;
